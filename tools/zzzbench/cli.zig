@@ -42,6 +42,10 @@ pub const Options = struct {
     platform: PlatformFilter = .all,
     devices: []const u8 = "",
     select_all: bool = false,
+    /// `--replace-probe`: stop a probe another workspace left on an
+    /// Android device's port instead of refusing to start. Without it,
+    /// a terminal session asks and anything else refuses.
+    replace_probe: bool = false,
     json: bool = false,
     engine_dirs: [max_engine_dirs][]const u8 = @splat(""),
     engine_dir_count: usize = 0,
@@ -118,6 +122,7 @@ pub const usage =
     \\  --platform all|android|host       Limit discovery
     \\  --devices ID[,ID...]              Select devices without the picker
     \\  --all                             Select every available device, up to five
+    \\  --replace-probe                   Stop another workspace's probe on an Android phone
     \\
     \\Run:
     \\  --model NAME|PATH                 Model from the catalogue
@@ -397,6 +402,11 @@ pub fn parse(args: []const []const u8, peer_buf: []Peer, diag: *Diagnostic) ?Opt
         } else if (isFlag(a, "--all")) {
             opts.select_all = true;
             opts.auto = true;
+        } else if (isFlag(a, "--replace-probe")) {
+            // Only discovery bootstraps an Android probe, so the flag
+            // means nothing without it.
+            opts.replace_probe = true;
+            opts.auto = true;
         } else if (isFlag(a, "--json")) {
             opts.json = true;
         } else if (isFlag(a, "--engine-bin") or isFlag(a, "--engine-model") or
@@ -615,6 +625,18 @@ test "devices subcommand and selectors parse without becoming endpoints" {
     const all = parseForTest(&.{ "zzzbench", "--all" }, &peers).?;
     try std.testing.expect(all.auto);
     try std.testing.expect(all.select_all);
+}
+
+test "--replace-probe opts in to stopping a foreign probe and keeps discovery on" {
+    var peers: [max_peers]Peer = undefined;
+    try std.testing.expect(!parseForTest(&.{"zzzbench"}, &peers).?.replace_probe);
+
+    const opts = parseForTest(&.{ "zzzbench", "--replace-probe" }, &peers).?;
+    try std.testing.expect(opts.replace_probe);
+    // Any other argument turns bare discovery off; this one only
+    // matters to discovery, so it must not.
+    try std.testing.expect(opts.auto);
+    try std.testing.expect(!opts.explicit_endpoint);
 }
 
 test "--kernel pins the dispatcher and rejects a name the engine lacks" {

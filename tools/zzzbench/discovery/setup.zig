@@ -65,6 +65,10 @@ pub fn run(
     var prepared: [picker.max_selected]Target = undefined;
     var prepared_len: usize = 0;
     var bootstrapped: usize = 0;
+    const foreign = foreignProbePolicy(
+        opts.replace_probe,
+        std.c.isatty(std.posix.STDIN_FILENO) != 0 and std.c.isatty(std.posix.STDERR_FILENO) != 0,
+    );
     for (selection.indices[0..selection.len]) |index| {
         const candidate = candidates[index];
         const target = try prepareCandidate(
@@ -74,6 +78,7 @@ pub fn run(
             workspace_path,
             candidate,
             &bootstrapped,
+            foreign,
         );
         prepared[prepared_len] = target;
         prepared_len += 1;
@@ -100,6 +105,21 @@ pub fn run(
     };
 }
 
+/// Startup runs in the operator's normal terminal, so a foreign probe
+/// can be asked about there. Without one — a script, CI —
+/// nobody can answer, and the safe answer is to leave it running.
+pub fn foreignProbePolicy(replace_probe: bool, interactive: bool) bootstrap_android.ForeignProbe {
+    if (replace_probe) return .replace;
+    return if (interactive) .ask else .refuse;
+}
+
+test "a foreign probe is stopped only when someone said so" {
+    try std.testing.expectEqual(bootstrap_android.ForeignProbe.replace, foreignProbePolicy(true, false));
+    try std.testing.expectEqual(bootstrap_android.ForeignProbe.replace, foreignProbePolicy(true, true));
+    try std.testing.expectEqual(bootstrap_android.ForeignProbe.ask, foreignProbePolicy(false, true));
+    try std.testing.expectEqual(bootstrap_android.ForeignProbe.refuse, foreignProbePolicy(false, false));
+}
+
 fn allowsEmptyDiscovery(opts: cli.Options) bool {
     return opts.explicit_endpoint or opts.peer_count > 0;
 }
@@ -124,6 +144,7 @@ pub fn prepareCandidate(
     workspace_path: []const u8,
     candidate: device.Candidate,
     bootstrapped: *usize,
+    foreign: bootstrap_android.ForeignProbe,
 ) !Target {
     switch (candidate.platform) {
         .host => {
@@ -152,6 +173,7 @@ pub fn prepareCandidate(
         io,
         workspace_path,
         candidate.id,
+        foreign,
     );
     if (result.bootstrapped) bootstrapped.* += 1;
     return .{

@@ -409,7 +409,7 @@ fn reportDiscoveryError(err: anyerror, opts: cli.Options) void {
         error.IncompatibleProbeRunning => std.debug.print(
             "zzzbench: another probe is still holding this Android port. It does not match\n" ++
                 "  the supplied runtime, so it cannot be reused for this benchmark.\n" ++
-                "  Stop it on the device and retry.\n",
+                "  Stop it on the device and retry, or rerun with --replace-probe to stop it.\n",
             .{},
         ),
         else => std.debug.print("zzzbench: device setup failed: {s}\n", .{@errorName(err)}),
@@ -1048,6 +1048,14 @@ const Session = struct {
         self.chooseComparisonDevices() catch |err| {
             if (err == error.SelectionCancelled) {
                 self.ui.flash("device selection cancelled");
+            } else if (err == error.IncompatibleProbeRunning) {
+                // The pid and kill command went to stderr, which this
+                // screen has already drawn over, so the flash has to
+                // carry the way out on its own.
+                self.ui.flash(if (self.launch_options.replace_probe)
+                    "another probe still holds the Android port — stop it on the device and retry"
+                else
+                    "another workspace's probe holds the Android port — relaunch with --replace-probe to stop it");
             } else {
                 self.ui.flashFmt("device comparison setup failed: {s}", .{@errorName(err)});
             }
@@ -1221,7 +1229,17 @@ const Session = struct {
                     .{ .kind = .host, .id = "localhost" }
                 else
                     self.targetFor(previous.?),
-            } else try discovery_setup.prepareCandidate(self.allocator, arena, self.io, self.workspace_path, candidate, &bootstrapped);
+            } else try discovery_setup.prepareCandidate(
+                self.allocator,
+                arena,
+                self.io,
+                self.workspace_path,
+                candidate,
+                &bootstrapped,
+                // The dashboard owns the terminal, so there is no prompt
+                // to ask a foreign probe's question in.
+                if (self.launch_options.replace_probe) .replace else .refuse,
+            );
             // Copied, not borrowed: `candidate` lives in the caller's
             // scratch arena, and a kept device's strings in the set
             // this one is about to replace.
