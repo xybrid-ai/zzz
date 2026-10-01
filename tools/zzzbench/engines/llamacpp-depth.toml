@@ -1,0 +1,23 @@
+schema = 1
+id = "llamacpp-depth"
+label = "llama.cpp @depth"
+parser = "llama-bench-json"
+fidelity = "summary"
+
+bin.host = "~/llama.cpp/build/bin/llama-bench"
+bin.android = "/data/local/tmp/llamacpp/bin/llama-bench"
+env.android = { LD_LIBRARY_PATH = "/data/local/tmp/llamacpp/lib" }
+
+# Same tool as `llamacpp`, one flag apart: `-d {n_prompt}` runs both tests
+# with {n_prompt} tokens already in the KV cache.
+#
+# zzz generates after processing its prompt; plain `llama-bench -n` starts
+# from an empty context. For generation comparisons, this adapter starts
+# with the configured prompt length already in the cache.
+# Its prompt-processing row also starts at that depth, so use `llamacpp`
+# for an empty-context prompt comparison and `llamacpp-depth` for generation.
+argv = [
+  "{bin}", "-m", "{model}",
+  "-p", "{n_prompt}", "-n", "{n_generate}",
+  "-t", "{threads}", "-d", "{n_prompt}", "-r", "1", "-o", "json",
+]

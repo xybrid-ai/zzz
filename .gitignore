@@ -1,0 +1,18 @@
+.zig-cache/
+zig-out/
+zig-pkg/
+exports/
+zzzbench-runs/
+*.gguf
+.DS_Store
+
+# Credentials and separately supplied runtime bundles.
+.env
+.env.*
+!.env.example
+/runtime/*
+!/runtime/README.md
+/bundles/
+/models/
+/zzz
+/zzzprobe
