@@ -44,6 +44,12 @@ zig build zzzbench -Doptimize=ReleaseFast -- devices --json
 zig build zzzbench -Doptimize=ReleaseFast -- --devices DEVICE_ID
 ```
 
+Only one probe can serve an Android phone at a time. If a probe started from
+another workspace holds it, zzzbench shows that probe's process ID and uptime.
+In a terminal it asks before stopping it; without one it refuses and prints the
+`adb shell kill` command to run. Pass `--replace-probe` to stop it without asking.
+Stopping a probe also stops any benchmark it is running.
+
 Use comma-separated IDs for several devices, or `--all` for all available devices
 (up to five). An explicit probe endpoint connects directly and skips discovery:
 
