@@ -1,0 +1,21 @@
+schema = 1
+id = "llamacpp"
+label = "llama.cpp"
+parser = "llama-bench-json"
+fidelity = "summary"
+
+bin.host = "~/llama.cpp/build/bin/llama-bench"
+bin.android = "/data/local/tmp/llamacpp/bin/llama-bench"
+env.android = { LD_LIBRARY_PATH = "/data/local/tmp/llamacpp/lib" }
+
+# The comparison coordinator owns repetitions; one process is one sample.
+#
+# This is upstream's default invocation: prompt processing and generation
+# both from an empty context. Its *prefill* row is the like-for-like
+# number against zzz, which also prefills from empty. Its generation row
+# is not — zzz decodes after its prefill. See `llamacpp-depth.toml`.
+argv = [
+  "{bin}", "-m", "{model}",
+  "-p", "{n_prompt}", "-n", "{n_generate}",
+  "-t", "{threads}", "-r", "1", "-o", "json",
+]

@@ -1,0 +1,21 @@
+schema = 1
+id = "zzz"
+label = "zzz"
+parser = "zzz-binary"
+fidelity = "streaming"
+
+# Externally supplied executable. --engine-bin / ZZZBENCH_ENGINE_BIN override
+# the host default; Android uses the staged target binary.
+bin.host = "{workspace}/zig-out/bin/zzz"
+bin.android = "{workspace}/zzz"
+
+# One untimed prefill pass precedes the measured pass.
+argv = [
+  "{bin}", "bench-run", "{model}", "--protocol", "1", "--report-binary",
+  "--threads", "{threads}",
+  "--prefill-tokens", "{n_prompt}",
+  "--decode-tokens", "{n_generate}",
+  "--prefill-warmup",
+]
+argv_prompt = ["--prompt", "{prompt}", "--emit-text"]
+argv_kernel = ["--kernel", "{kernel}"]

@@ -1,0 +1,7 @@
+schema = 1
+id = "broken"
+label = "Broken"
+parser = "json-object"
+fidelity = "summary"
+bin.host = "/tmp/broken"
+surprise = "unknown fields fail closed"

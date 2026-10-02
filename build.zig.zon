@@ -1,0 +1,19 @@
+.{
+    .name = .zzz,
+    .version = "0.1.0",
+    .fingerprint = 0xc3273dcae713ced6,
+    .minimum_zig_version = "0.16.0",
+    .dependencies = .{
+        // Terminal toolkit the TUI draws with. Lazy: host builds request
+        // it for the zzzbench viewer and its tests. `-Dtui=false` skips
+        // the viewer and its tests, so the toolkit is not fetched.
+        .tuiz = .{
+            .url = "git+https://github.com/xybrid-ai/tuiz#64bdd1c6a4c89121e80b81bceb8f62c72fe74654",
+            .hash = "tuiz-0.1.0-X2FHnfs0BQBzdBeLBO1s3Oy0Jd6P4iE_IHYARfwj58Mo",
+            .lazy = true,
+        },
+    },
+    // `assets/` holds only the README demo recording. It is left out to keep
+    // the package small, so a README read from the package shows no image.
+    .paths = .{ "build.zig", "build.zig.zon", "build_support.zig", ".zigversion", "shared", "tests", "tools", "README.md", "AGENTS.md", "CONTRIBUTING.md", "docs", "runtime", "BINARY_CONTRACT.md", "LICENSE", "NOTICE", "ARTWORK.md" },
+}

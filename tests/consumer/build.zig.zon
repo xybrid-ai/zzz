@@ -1,0 +1,8 @@
+.{
+    .name = .zzz_consumer_test,
+    .version = "0.0.0",
+    .fingerprint = 0x7f8bf24de1cae6b8,
+    .minimum_zig_version = "0.16.0",
+    .dependencies = .{ .zzz = .{ .path = "../.." } },
+    .paths = .{ "build.zig", "build.zig.zon", "main.zig" },
+}

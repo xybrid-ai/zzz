@@ -1,0 +1,20 @@
+[
+  {
+    "model_filename": "/data/local/tmp/model.gguf",
+    "n_threads": 8,
+    "n_prompt": 128,
+    "n_gen": 0,
+    "avg_ts": 236.75,
+    "stddev_ts": 1.25,
+    "ts": [235.50, 238.00]
+  },
+  {
+    "model_filename": "/data/local/tmp/model.gguf",
+    "n_threads": 8,
+    "n_prompt": 0,
+    "n_gen": 32,
+    "avg_ts": 48.50,
+    "stddev_ts": 0.50,
+    "ts": [48.00, 49.00]
+  }
+]
