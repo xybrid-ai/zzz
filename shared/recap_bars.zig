@@ -1,8 +1,8 @@
 //! recap-bars — deterministic ASCII bar renderer for recap/SUMMARY blocks.
 //!
-//! Bars are drawn here (not hand-typed by an agent) so a given set of numbers
-//! always renders byte-identically — the same reproducibility contract the
-//! bench memos hold their numbers to.
+//! Bars are drawn by code, never typed by hand, so a given set of numbers
+//! always renders byte-identically, in a receipt's SUMMARY.md or anywhere
+//! else the output is pasted.
 //!
 //! Usage (reads rows from stdin, one per line, `|`-separated):
 //!
